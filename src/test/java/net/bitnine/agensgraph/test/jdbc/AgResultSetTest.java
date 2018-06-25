@@ -366,4 +366,29 @@ public class AgResultSetTest extends TestCase {
         rs.close();
         stmt.close();
     }
+
+    @Test
+    public void testGetGraphWriteCount() throws SQLException {
+        Statement stmt = conn.createStatement();
+        stmt.execute("DROP GRAPH IF EXISTS t CASCADE");
+        stmt.execute("CREATE GRAPH t");
+        stmt.execute("SET graph_path = t");
+
+        int i = stmt.executeUpdate("CREATE (:v{i: 1}) CREATE (:v{i: 2})");
+        assertEquals(2, i);
+
+        i = stmt.executeUpdate("MATCH (n) SET n.i = 0");
+        assertEquals(2, i);
+
+        i = stmt.executeUpdate("MATCH (n) DELETE n");
+        assertEquals(2, i);
+
+        i = stmt.executeUpdate("CREATE (:v1)-[:r1]->(:r2)");
+        assertEquals(2, i);
+
+        i = stmt.executeUpdate("MATCH ()-[r]->() DELETE r");
+        assertEquals(1, i);
+
+        stmt.close();
+    }
 }
